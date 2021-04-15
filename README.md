@@ -42,6 +42,6 @@ make destroy
 
 
 [Yandex Cloud]: https://cloud.yandex.ru/
-[main.tf]: https://github.com/mihailag/sf__jenkins_environment_jobs/terraform/main.tf
+[main.tf]: https://github.com/mihailag/sf__jenkins_environment/terraform/main.tf
 [провайдера]: https://cloud.yandex.ru/docs/solutions/infrastructure-management/terraform-quickstart#configure-provider
 [репозиторий]: https://github.com/mihailag/sf__jenkins_environment_jobs
