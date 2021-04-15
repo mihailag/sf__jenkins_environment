@@ -1,0 +1,48 @@
+- hosts: all
+  become: yes
+  tasks:
+
+   - name: install Docker
+     apt:
+       name: docker.io
+       state: present
+       update_cache: true
+
+
+- hosts: server
+  become: yes
+  tasks:
+
+   - name: install OpenJDK
+     apt:
+      name: openjdk-11-jdk
+      state: present
+      update_cache: true
+
+   - name: add Jenkins apt-key
+     apt_key:
+       url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
+       state: present
+
+   - name: add Jenkins APT repository
+     apt_repository:
+      repo: deb https://pkg.jenkins.io/debian-stable binary/
+      state: present
+      filename: 'jenkins'
+
+   - name: install Jenkins
+     apt:
+       name: jenkins
+       state: present
+       update_cache: true
+
+   - name: add user jenkins to group docker
+     user:
+       name: jenkins
+       groups: docker
+       append: yes
+
+   - name: restart Jenkins
+     service:
+       name: jenkins
+       state: restarted

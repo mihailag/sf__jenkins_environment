@@ -1,0 +1,53 @@
+- hosts: server
+  become: yes
+  tasks:
+
+   - name: create .ssh directory
+     file:
+       path: /var/lib/jenkins/.ssh
+       state: directory
+       owner: jenkins
+       group: jenkins
+       mode: 0700
+
+   - name: generate SSH key
+     openssh_keypair:
+       path: "/var/lib/jenkins/.ssh/jenkins-key"
+       group: jenkins
+       owner: jenkins
+     register: ssh_key
+
+   - name: create .ssh/config file
+     blockinfile:
+       path: "/var/lib/jenkins/.ssh/config"
+       block: |
+         Host {{item}}
+           Hostname {{ hostvars[item].ansible_host }}
+           User ubuntu
+           IdentityFile ~/.ssh/jenkins-key
+           StrictHostKeyChecking no
+       marker: "# {mark} ANSIBLE MANAGED BLOCK {{item}}"
+       owner: jenkins
+       group: jenkins
+       mode: '0600'
+       create: yes
+     with_items: "{{ groups['workers'] }}"
+
+   - name: add workers in /etc/hosts file
+     lineinfile: 
+       path: /etc/hosts 
+       line: "{{ hostvars[item].ansible_host }} {{item}}" 
+       state: present
+     with_items: "{{ groups['workers'] }}"
+
+
+- hosts: workers
+  become: yes
+  tasks:
+
+   - name: set authorized key to workers
+     authorized_key:
+       user: ubuntu
+       state: present
+       key: "{{ hostvars['jenkins'].ssh_key.public_key }}"
+
